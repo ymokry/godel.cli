@@ -1,5 +1,4 @@
-# godel.cli
-Command-line tools for Godel VPN
+# Command-line tools for Godel VPN
 
 <details>
 <summary>Prerequisites</summary>
@@ -9,11 +8,11 @@ Refer to https://docs.brew.sh/Installation to install `brew`
 
 ## Install password client
 ```sh
-# Install 1Password CLI
+### Install 1Password CLI
 $ brew install --cask 1password-cli
 
-# Configure 1Password CLI
-$ op signin https://my.1password.com <email_address> <secret_key>
+### Configure 1Password CLI
+$ op signin https://my.1password.com <your email> <your secret key>
 ```
 More info:
 - [Brew docs](https://formulae.brew.sh/cask/1password-cli)
@@ -21,7 +20,7 @@ More info:
 
 ## Install VPN client
 ```sh
-# Install Openconnect
+### Install Openconnect
 $ brew install openconnect
 ```
 </details>
@@ -36,7 +35,7 @@ SECRET_NAME="My Secret"
 VPN_URL="endpoint.example.com"
 VPN_USER="n.surname"
 
-### Copy the executable to your system [OPTIONAL]
+### Copy the executable to your system folder [OPTIONAL]
 $ sudo cp godel /usr/local/bin
 ```
 
@@ -48,7 +47,7 @@ $ godel password
 ### Output example:
 # Getting GTE password ...
 #
-# Enter the password for <you email> at <your vault>: <enter your password here>
+# Enter the password for <you email> at my.1password.com: <enter your password here>
 #
 # Your password has been copied to the clipboard (Command(⌘) + V for use)
 ```
@@ -67,4 +66,7 @@ $ sudo godel connect
 # add net XXX.XXX.XXX.XXX: gateway XXX.XXX.XXX.XXX
 # ...
 ```
-**NOTE:** Don't close the terminal window. To disconnect, end the process (Control (^) + C)
+**NOTE:** Don't close the terminal window. To disconnect, end the process (Control(^) + C)
+
+## License
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
