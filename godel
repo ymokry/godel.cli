@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+ACTION="${1}"
+
+################################################################################
+# Variables                                                                    #
+################################################################################
+SECRET_NAME="change-me"
+VPN_URL="change-me"
+VPN_USER="change-me"
+
+################################################################################
+# Utilities                                                                    #
+################################################################################
+checkSudo() {
+    if [ `whoami` != root ]; then
+        echo
+        echo "Please run this script using sudo"
+        exit 1
+    fi
+}
+
+checkNoSudo() {
+    if [ `whoami` = root ]; then
+        echo
+        echo "Please do not run this script using sudo"
+        exit 1
+    fi
+}
+
+################################################################################
+# Get password                                                                 #
+################################################################################
+getPassword() {
+    checkNoSudo
+    echo "Getting GTE password ..."
+    echo
+    eval $(op signin my)
+    op get item $SECRET_NAME --fields password | pbcopy
+    echo
+    echo "Your password has been copied to the clipboard (Command(⌘) + V for use)"
+    
+    exit $?
+}
+
+################################################################################
+# Connect to Godel VPN                                                         #
+################################################################################
+connectToVPN() {
+    checkSudo
+    echo "Connecting to $VPN_URL ..."
+    echo
+    openconnect $VPN_URL -q -u $VPN_USER
+    echo
+    echo "You are disconnected from $VPN_URL"
+    
+    exit $?
+}
+
+################################################################################
+# Display Help                                                                 #
+################################################################################
+printHelp() {
+    echo
+    echo "Commandline tools for Godel VPN [version 1.0]"
+    echo
+    echo "Depends on:"
+    echo "  op              Command-line helper for the 1Password password manager;"
+    echo "  pbcopy          Provide copying to the clipboard from command line;"
+    echo "  openconnect     Open client for Cisco AnyConnect VPN;"
+    echo
+    echo "Usage:  godel <action>"
+    echo
+    echo "Actions:"
+    echo "  password    Copy Godel password to clipboard;    [without sudo]"
+    echo "  connect     Connect to Godel VPN;                [with sudo]"
+}
+
+################################################################################
+# Main program                                                                 #
+################################################################################
+case ${ACTION} in
+    "password")
+        getPassword
+    ;;
+    "connect")
+        connectToVPN
+    ;;
+    "help")
+        printHelp
+    ;;
+    *)
+        echo
+        echo "Invalid action specified"
+        printHelp
+        exit 1
+    ;;
+esac
