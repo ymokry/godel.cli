@@ -29,7 +29,7 @@ $ brew install openconnect
 $ git clone git@github.com:ymokry/godel.cli.git
 
 ### Move the executable to your system folder
-$ sudo mv -r godel.cli /opt/
+$ sudo mv godel.cli /opt/
 $ sudo ln -s /opt/godel.cli/godel /usr/local/bin/godel
 
 ### Configure GTE tools
