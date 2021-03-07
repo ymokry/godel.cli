@@ -51,12 +51,13 @@ configure() {
     checkSudo
     cleanConfiguration
     printMessage "Configuring GTE tools ..."
-    read -p "Ented VPN address: " GODEL_VPN_ADDRESS
-    writeConfigurationValue GODEL_VPN_ADDRESS
-    read -p "Ented VPN username: " GODEL_VPN_USERNAME
+    read -p "Enter VPN host: " GODEL_VPN_HOST
+    writeConfigurationValue GODEL_VPN_HOST
+    read -p "Enter VPN username: " GODEL_VPN_USERNAME
     writeConfigurationValue GODEL_VPN_USERNAME
-    read -p "Ented OP secret name: " GODEL_OP_SECRET_NAME
+    read -p "Enter OP secret name: " GODEL_OP_SECRET_NAME
     writeConfigurationValue GODEL_OP_SECRET_NAME
+    printMessage "GTE tools have been successfully configured"
     
     exit $?
 }
@@ -81,9 +82,24 @@ getPassword() {
 connectToVPN() {
     checkSudo
     checkConfiguration
-    printMessage "Connecting to $GODEL_VPN_ADDRESS ..."
-    openconnect $GODEL_VPN_ADDRESS -q -u $GODEL_VPN_USERNAME
-    printMessage "You are disconnected from $GODEL_VPN_ADDRESS"
+    printMessage "Connecting to $GODEL_VPN_HOST ..."
+    openconnect $GODEL_VPN_HOST -q -b -u $GODEL_VPN_USERNAME
+    sleep 3
+    printMessage "Connected to $GODEL_VPN_HOST"
+    
+    exit $?
+}
+
+################################################################################
+# Disconnect from Godel VPN                                                    #
+################################################################################
+disconnectFromVPN() {
+    checkSudo
+    checkConfiguration
+    printMessage "Disconnecting from $GODEL_VPN_HOST ..."
+    killall -SIGINT openconnect
+    sleep 3
+    printMessage "Disconnected from $GODEL_VPN_HOST"
     
     exit $?
 }
@@ -93,14 +109,15 @@ connectToVPN() {
 ################################################################################
 printHelp() {
     echo "
-Commandline tools for Godel VPN [version 1.1]
+Commandline tools for Godel VPN [version 1.2]
 
 Usage:  godel <command>
 
 Commands:
   configure       Setup GTE tools;                     [with sudo]
-  password        Copy Godel password to clipboard;    [without sudo]
+  password        Copy GTE password to clipboard;      [without sudo]
   connect         Connect to Godel VPN;                [with sudo]
+  disconnect      Disconnect form Godel VPN;           [with sudo]
 
 Depends on:
   op              Command-line helper for the 1Password password manager;
@@ -121,6 +138,9 @@ case ${1} in
     ;;
     "connect")
         connectToVPN
+    ;;
+    "disconnect")
+        disconnectFromVPN
     ;;
     "help")
         printHelp
