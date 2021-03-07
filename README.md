@@ -1,5 +1,5 @@
 # Command-line tools for Godel VPN
-![Version](https://img.shields.io/github/v/tag/ymokry/godel.cli?label=Version)
+[![Version](https://img.shields.io/github/v/tag/ymokry/godel.cli?label=Version)](https://github.com/ymokry/godel.cli/releases)
 <details>
 <summary>Prerequisites</summary>
 
