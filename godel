@@ -1,31 +1,64 @@
 #!/usr/bin/env bash
 
-ACTION="${1}"
-
-################################################################################
-# Variables                                                                    #
-################################################################################
-SECRET_NAME="change-me"
-VPN_URL="change-me"
-VPN_USER="change-me"
+GODEL_CONFIG="$(dirname $(realpath $0))/godel.config"
 
 ################################################################################
 # Utilities                                                                    #
 ################################################################################
+printMessage() {
+    echo
+    echo $@
+}
+
+printError() {
+    printMessage $@
+    printMessage "Run 'help' for more information"
+    exit 1
+}
+
 checkSudo() {
     if [ `whoami` != root ]; then
-        echo
-        echo "Please run this script using sudo"
-        exit 1
+        printError "Please run this script using sudo"
     fi
 }
 
 checkNoSudo() {
     if [ `whoami` = root ]; then
-        echo
-        echo "Please do not run this script using sudo"
-        exit 1
+        printError "Please do not run this script using sudo"
     fi
+}
+
+checkConfiguration() {
+    if [ -f $GODEL_CONFIG ] && [ -s $GODEL_CONFIG ]; then
+        source $GODEL_CONFIG
+    else
+        printError "Please configure before use"
+    fi
+}
+
+cleanConfiguration() {
+    > $GODEL_CONFIG
+}
+
+writeConfigurationValue() {
+    echo "$1='${!1}'" >> $GODEL_CONFIG
+}
+
+################################################################################
+# Configure CLI tool                                                           #
+################################################################################
+configure() {
+    checkSudo
+    cleanConfiguration
+    printMessage "Configuring GTE tools ..."
+    read -p "Ented VPN address: " GODEL_VPN_ADDRESS
+    writeConfigurationValue GODEL_VPN_ADDRESS
+    read -p "Ented VPN username: " GODEL_VPN_USERNAME
+    writeConfigurationValue GODEL_VPN_USERNAME
+    read -p "Ented OP secret name: " GODEL_OP_SECRET_NAME
+    writeConfigurationValue GODEL_OP_SECRET_NAME
+    
+    exit $?
 }
 
 ################################################################################
@@ -33,12 +66,11 @@ checkNoSudo() {
 ################################################################################
 getPassword() {
     checkNoSudo
-    echo "Getting GTE password ..."
-    echo
-    eval $(op signin my)
-    op get item $SECRET_NAME --fields password | pbcopy
-    echo
-    echo "Your password has been copied to the clipboard (Command(⌘) + V for use)"
+    checkConfiguration
+    printMessage "Getting GTE password ..."
+    export OP_SESSION_my=$(op signin my --raw)
+    op get item "$GODEL_OP_SECRET_NAME" --fields password | pbcopy
+    printMessage "Your password has been copied to the clipboard (Command(⌘) + V for use)"
     
     exit $?
 }
@@ -48,11 +80,10 @@ getPassword() {
 ################################################################################
 connectToVPN() {
     checkSudo
-    echo "Connecting to $VPN_URL ..."
-    echo
-    openconnect $VPN_URL -q -u $VPN_USER
-    echo
-    echo "You are disconnected from $VPN_URL"
+    checkConfiguration
+    printMessage "Connecting to $GODEL_VPN_ADDRESS ..."
+    openconnect $GODEL_VPN_ADDRESS -q -u $GODEL_VPN_USERNAME
+    printMessage "You are disconnected from $GODEL_VPN_ADDRESS"
     
     exit $?
 }
@@ -61,25 +92,30 @@ connectToVPN() {
 # Display Help                                                                 #
 ################################################################################
 printHelp() {
-    echo
-    echo "Commandline tools for Godel VPN [version 1.0]"
-    echo
-    echo "Depends on:"
-    echo "  op              Command-line helper for the 1Password password manager;"
-    echo "  pbcopy          Provide copying to the clipboard from command line;"
-    echo "  openconnect     Open client for Cisco AnyConnect VPN;"
-    echo
-    echo "Usage:  godel <action>"
-    echo
-    echo "Actions:"
-    echo "  password    Copy Godel password to clipboard;    [without sudo]"
-    echo "  connect     Connect to Godel VPN;                [with sudo]"
+    echo "
+Commandline tools for Godel VPN [version 1.1]
+
+Usage:  godel <command>
+
+Commands:
+  configure       Setup GTE tools;                     [with sudo]
+  password        Copy Godel password to clipboard;    [without sudo]
+  connect         Connect to Godel VPN;                [with sudo]
+
+Depends on:
+  op              Command-line helper for the 1Password password manager;
+  pbcopy          Provide copying to the clipboard from command line;
+  openconnect     Open client for Cisco AnyConnect VPN;
+    "
 }
 
 ################################################################################
 # Main program                                                                 #
 ################################################################################
-case ${ACTION} in
+case ${1} in
+    "configure")
+        configure
+    ;;
     "password")
         getPassword
     ;;
@@ -90,9 +126,6 @@ case ${ACTION} in
         printHelp
     ;;
     *)
-        echo
-        echo "Invalid action specified"
-        printHelp
-        exit 1
+        printError "Invalid command specified"
     ;;
 esac

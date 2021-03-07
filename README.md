@@ -7,44 +7,41 @@
 Refer to https://docs.brew.sh/Installation to install `brew`
 
 ## Install password client
-```sh
+```shell
 ### Install 1Password CLI
 $ brew install --cask 1password-cli
 
 ### Configure 1Password CLI
 $ op signin https://my.1password.com <your email> <your secret key>
 ```
-More info:
-- [Brew docs](https://formulae.brew.sh/cask/1password-cli)
-- [1Password docs](https://support.1password.com/command-line/)
+More info: [1Password docs](https://support.1password.com/command-line/)
 
 ## Install VPN client
-```sh
+```shell
 ### Install Openconnect
 $ brew install openconnect
 ```
 </details>
 
-## Getting started as a user of Godel VPN tooling
-```sh
+## Getting started
+```shell
 ### Clone the repo
 $ git clone git@github.com:ymokry/godel.cli.git
 
-### Replace required variables in the script
-SECRET_NAME="My Secret"
-VPN_URL="endpoint.example.com"
-VPN_USER="n.surname"
+### Move the executable to your system folder
+$ sudo mv -r godel.cli /opt/
+$ sudo ln -s /opt/godel.cli/godel /usr/local/bin/godel
 
-### Copy the executable to your system folder [OPTIONAL]
-$ sudo cp godel /usr/local/bin
+### Configure GTE tools
+$ sudo godel configure
 ```
 
 ## Usage
 Get your password from the 1Password vault
-```sh
+```shell
 $ godel password
 
-### Output example:
+### Output:
 # Getting GTE password ...
 #
 # Enter the password for <you email> at my.1password.com: <enter your password here>
@@ -53,10 +50,10 @@ $ godel password
 ```
 
 Connect to VPN
-```sh
+```shell
 $ sudo godel connect
 
-### Output example:
+### Output:
 # Connecting to <VPN endpoint> ...
 #
 # Password: <paste the password from the previous step>
